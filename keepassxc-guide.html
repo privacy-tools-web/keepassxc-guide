@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<style>
+  @font-face { font-family:'DM Serif Display'; src:url('/fonts/DMSerifDisplay-Regular.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
+  @font-face { font-family:'DM Serif Display'; src:url('/fonts/DMSerifDisplay-Italic.woff2') format('woff2'); font-weight:400; font-style:italic; font-display:swap; }
+  @font-face { font-family:'DM Sans'; src:url('/fonts/DMSans-Light.woff2') format('woff2'); font-weight:300; font-style:normal; font-display:swap; }
+  @font-face { font-family:'DM Sans'; src:url('/fonts/DMSans-Regular.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
+  @font-face { font-family:'DM Sans'; src:url('/fonts/DMSans-Medium.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; }
+  @font-face { font-family:'DM Sans'; src:url('/fonts/DMSans-SemiBold.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
+  @font-face { font-family:'DM Mono'; src:url('/fonts/DMMono-Regular.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
+  @font-face { font-family:'DM Mono'; src:url('/fonts/DMMono-Medium.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; }
+
+  :root {
+    --bg:          #F6F3EE;
+    --bg2:         #FFFFFF;
+    --bg3:         #EDE9E2;
+    --border:      #DDD9D1;
+    --border-mid:  #C8C3BA;
+    --text:        #1C1F24;
+    --muted:       #525049;
+    --accent:      #2D6A59;
+    --accent2:     #245248;
+    --accent-pale: #EAF3EF;
+    --accent-dim:  rgba(45,106,89,0.08);
+    --warn:        #8A6000;
+    --warn-pale:   #FEF3DC;
+    --warn-border: rgba(138,96,0,0.25);
+    --font:  'DM Sans', sans-serif;
+    --serif: 'DM Serif Display', serif;
+    --mono:  'DM Mono', monospace;
+    --radius:    10px;
+    --radius-sm:  6px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  [id] { scroll-margin-top:90px; }
+
+  body {
+    background:var(--bg); color:var(--text);
+    font-family:var(--font); font-size:17px;
+    line-height:1.7; -webkit-font-smoothing:antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position:sticky; top:0; z-index:100;
+    background:rgba(246,243,238,0.94); backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+    padding:0 2rem; display:flex; align-items:center; justify-content:space-between;
+    height:62px;
+  }
+  .nav-logo { display:inline-flex; align-items:center; gap:0.55rem; text-decoration:none; }
+  .nav-logo-icon { flex-shrink:0; width:38px; height:38px; }
+  .nav-logo-text { font-family:var(--mono); font-size:0.82rem; color:var(--accent); letter-spacing:0.03em; font-weight:500; }
+  .nav-links { display:flex; gap:2rem; list-style:none; align-items:center; }
+  .nav-links a { color:var(--muted); text-decoration:none; font-size:0.88rem; font-weight:400; transition:color 0.2s; }
+  .nav-links a:hover { color:var(--text); }
+
+
+  /* PAGE LAYOUT */
+  .page-outer { max-width:1100px; margin:0 auto; padding:0 2rem; }
+  .breadcrumb { padding:2rem 0 0; }
+  .breadcrumb a {
+    display:inline-flex; align-items:center; gap:0.4rem;
+    font-family:var(--mono); font-size:0.78rem;
+    color:var(--muted); text-decoration:none; transition:color 0.2s;
+  }
+  .breadcrumb a:hover { color:var(--accent); }
+
+  .main-layout {
+    display:grid; grid-template-columns:240px 1fr;
+    gap:4rem; padding:3rem 0 6rem; align-items:start;
+  }
+
+  /* SIDEBAR TOC */
+  aside { position:sticky; top:80px; height:fit-content; }
+  .toc-label {
+    font-family:var(--mono); font-size:0.7rem; color:var(--accent);
+    letter-spacing:0.12em; text-transform:uppercase; font-weight:500; margin-bottom:0.9rem;
+  }
+  .toc-list { list-style:none; border-left:2px solid var(--border); }
+  .toc-list li a {
+    display:block; padding:0.4rem 1rem; text-decoration:none;
+    color:var(--muted); font-size:0.83rem; font-weight:400;
+    transition:color 0.2s; line-height:1.45;
+  }
+  .toc-list li a:hover,
+  .toc-list li a.active { color:var(--accent); border-left:2px solid var(--accent); margin-left:-2px; }
+
+  /* MOBILE TOC */
+  .mobile-toc {
+    display:none; background:var(--bg2); border:1.5px solid var(--border);
+    border-radius:var(--radius); margin-bottom:2rem; overflow:hidden; box-shadow:var(--shadow-sm);
+  }
+  .mobile-toc-toggle {
+    width:100%; background:none; border:none; padding:1rem 1.25rem;
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:var(--font); font-size:0.88rem; font-weight:600; color:var(--text); cursor:pointer;
+  }
+  .mobile-toc-toggle svg { transition:transform 0.2s; flex-shrink:0; color:var(--muted); }
+  .mobile-toc-toggle.open svg { transform:rotate(180deg); }
+  .mobile-toc-content { display:none; padding:0.5rem 0 1rem; border-top:1px solid var(--border); }
+  .mobile-toc-content.active { display:block; }
+  .mobile-toc-content .toc-list { border-left:none; padding-left:1rem; }
+  .mobile-toc-content .toc-list li a { font-size:0.88rem; }
+
+  /* ARTICLE */
+  article { min-width:0; }
+  .section-tag {
+    font-family:var(--font); font-size:0.75rem; color:var(--accent);
+    letter-spacing:0.14em; text-transform:uppercase; font-weight:600; margin-bottom:1rem;
+  }
+  article h1 {
+    font-family:var(--serif); font-size:clamp(2rem, 4vw, 2.9rem);
+    font-weight:400; letter-spacing:-0.02em; line-height:1.1;
+    margin-bottom:1.25rem; color:var(--text);
+  }
+  .reading-time {
+    display:inline-flex; align-items:center; gap:0.5rem;
+    background:var(--bg3); border:1px solid var(--border);
+    padding:0.45rem 1rem; border-radius:var(--radius-sm);
+    font-family:var(--mono); font-size:0.78rem; color:var(--muted); margin-bottom:2rem;
+  }
+  article > p { font-size:1rem; color:var(--muted); line-height:1.8; margin-bottom:1.5rem; font-weight:300; }
+  article h2 {
+    font-family:var(--serif); font-size:clamp(1.4rem, 2.5vw, 1.75rem);
+    font-weight:400; color:var(--text); margin:3.5rem 0 1.25rem;
+    padding-bottom:0.6rem; border-bottom:1px solid var(--border); letter-spacing:-0.01em;
+  }
+  article h3 { font-size:1.05rem; font-weight:600; color:var(--text); margin:2rem 0 0.75rem; }
+  article h4 {
+    font-family:var(--mono); font-size:0.72rem; color:var(--accent);
+    letter-spacing:0.1em; text-transform:uppercase; font-weight:500; margin:1.5rem 0 0.5rem;
+  }
+  article p { font-size:0.95rem; color:var(--muted); line-height:1.8; margin-bottom:1.25rem; font-weight:300; }
+  article ul, article ol { padding-left:1.5rem; margin-bottom:1.5rem; }
+  article li { font-size:0.95rem; color:var(--muted); line-height:1.75; margin-bottom:0.6rem; font-weight:300; }
+  article strong { color:var(--text); font-weight:600; }
+  article a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(45,106,89,0.3); transition:border-color 0.2s; }
+  article a:hover { border-color:var(--accent); }
+  code {
+    background:var(--bg3); border:1px solid var(--border);
+    padding:0.15rem 0.45rem; border-radius:4px;
+    font-family:var(--mono); font-size:0.88em; color:var(--accent2);
+  }
+
+  /* REQUIREMENTS BOX */
+  .requirements-box {
+    background:var(--accent-pale); border:1.5px solid rgba(45,106,89,0.22);
+    border-radius:var(--radius); padding:1.75rem 2rem; margin:2rem 0 2.5rem;
+  }
+  .requirements-box h3 { font-size:0.95rem; font-weight:600; color:var(--accent); margin-bottom:0.9rem; }
+  .requirements-box ul { list-style:none; padding:0; margin:0; }
+  .requirements-box li {
+    font-size:0.9rem; color:var(--text); padding:0.35rem 0 0.35rem 1.5rem;
+    position:relative; font-weight:400;
+  }
+  .requirements-box li::before { content:"✓"; position:absolute; left:0; color:var(--accent); font-weight:700; }
+
+  /* STEP CARD */
+  .step-card {
+    background:var(--bg2); border:1.5px solid var(--border);
+    border-radius:var(--radius); padding:2rem 2.25rem;
+    margin-bottom:2rem; box-shadow:var(--shadow-sm);
+  }
+  .step-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem; }
+  .step-number {
+    background:var(--accent); color:#fff;
+    width:36px; height:36px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:0.9rem; flex-shrink:0; font-family:var(--mono);
+  }
+  .step-header h3 { margin:0; font-size:1rem; font-weight:600; }
+  .step-duration {
+    margin-left:auto; background:var(--bg3); border:1px solid var(--border);
+    padding:0.2rem 0.65rem; border-radius:var(--radius-sm);
+    font-family:var(--mono); font-size:0.75rem; color:var(--muted); white-space:nowrap;
+  }
+
+  /* PRO TIP */
+  .pro-tip {
+    background:var(--accent-pale); border:1.5px solid rgba(45,106,89,0.2);
+    border-radius:var(--radius-sm); padding:1.25rem 1.5rem; margin:1.25rem 0;
+    font-size:0.9rem; color:var(--text); font-weight:400; line-height:1.65;
+  }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background:var(--bg3); border:1px solid var(--border);
+    border-left:4px solid var(--accent); border-radius:var(--radius-sm);
+    padding:1.5rem 1.75rem; margin:1.5rem 0;
+  }
+  .highlight-box p, .highlight-box ul { margin-bottom:0; }
+
+  /* WARN BOX */
+  .warn-box {
+    background:var(--warn-pale); border:1.5px solid var(--warn-border);
+    border-radius:var(--radius-sm); padding:1.25rem 1.5rem; margin:1.25rem 0;
+  }
+  .warn-box p { color:var(--muted); margin-bottom:0; font-size:0.9rem; }
+  .warn-box strong { color:var(--warn); }
+
+  /* FAQ */
+  .faq-item { border-top:1px solid var(--border); padding:1.25rem 0; }
+  .faq-item:last-child { border-bottom:1px solid var(--border); }
+  .faq-item h3 { font-size:0.95rem; font-weight:600; color:var(--text); margin:0 0 0.5rem; }
+  .faq-item p { margin:0; font-size:0.9rem; }
+
+  /* CHECKLIST */
+  .checklist { list-style:none; padding:0; margin:0; }
+  .checklist li { font-size:0.95rem; color:var(--muted); padding:0.3rem 0; margin-bottom:0; font-weight:300; }
+
+  /* CTA BOX */
+  .cta-box {
+    background:var(--accent); border-radius:var(--radius);
+    padding:3rem 2.5rem; margin-top:4rem; text-align:center;
+  }
+  .cta-box h3 { font-family:var(--serif); font-size:1.7rem; font-weight:400; color:#fff; margin-bottom:1rem; }
+  .cta-box p { color:rgba(255,255,255,0.85); margin-bottom:2rem; font-size:0.95rem; font-weight:300; }
+  .cta-btn {
+    display:inline-flex; align-items:center; gap:0.5rem;
+    background:#fff; color:var(--accent); padding:0.8rem 1.75rem;
+    border-radius:var(--radius); text-decoration:none; border:none;
+    font-weight:600; font-size:0.95rem;
+    transition:box-shadow 0.2s, transform 0.2s;
+    box-shadow:0 2px 10px rgba(0,0,0,0.15);
+  }
+  .cta-btn:hover { box-shadow:0 6px 20px rgba(0,0,0,0.2); transform:translateY(-2px); border:none; }
+
+  /* FOOTER */
+  footer {
+    border-top:1px solid var(--border); padding:2rem;
+    display:flex; justify-content:space-between; align-items:center;
+    max-width:1100px; margin:0 auto; flex-wrap:wrap; gap:1rem;
+  }
+  .footer-logo { font-family:var(--mono); font-size:0.78rem; color:var(--muted); }
+  .footer-links { display:flex; gap:1.5rem; list-style:none; }
+  .footer-links a { font-size:0.82rem; color:var(--muted); text-decoration:none; border:none; transition:color 0.2s; }
+  .footer-links a:hover { color:var(--text); }
+
+  /* BACK TO TOP */
+  .back-to-top {
+    position:fixed; bottom:2rem; right:2rem; font-size:0.78rem;
+    color:var(--muted); text-decoration:none;
+    border:1.5px solid var(--border-mid); padding:0.4rem 0.8rem;
+    border-radius:var(--radius-sm); background:var(--bg2);
+    box-shadow:var(--shadow-sm); opacity:0; pointer-events:none;
+    transition:opacity 0.3s, color 0.2s, border-color 0.2s;
+  }
+  .back-to-top.visible { opacity:1; pointer-events:auto; }
+  .back-to-top:hover { color:var(--accent); border-color:rgba(45,106,89,0.5); }
+
+  /* RESPONSIVE */
+  @media (max-width:900px) {
+    .nav-links { display:none; }
+    .main-layout { grid-template-columns:1fr; gap:0; padding-top:2rem; }
+    aside { display:none; }
+    .mobile-toc { display:block; }
+    footer { flex-direction:column; align-items:flex-start; }
+    .cta-box { padding:2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="https://pc-privacytools.org" class="nav-logo" aria-label="PC Privacy Tools – Home" target="_blank" rel="noopener noreferrer">
+    <svg class="nav-logo-icon" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M19 4L7 9.5V18C7 25 12.5 31.2 19 33C25.5 31.2 31 25 31 18V9.5L19 4Z" fill="#EAF3EF" stroke="#2D6A59" stroke-width="2" stroke-linejoin="round"/>
+      <polyline points="13,19 17.5,24 26,14" stroke="#2D6A59" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="nav-logo-text">pc-privacytools.org</span>
+  </a>
+</nav>
+
+<div class="page-outer">
+  <div class="breadcrumb">
+  
+
+  <div class="main-layout">
+
+    <!-- SIDEBAR TOC -->
+    <aside>
+      <p class="toc-label">Table of Contents</p>
+      <ul class="toc-list">
+        <li><a href="#intro">Why KeePassXC?</a></li>
+        <li><a href="#install">1. Download &amp; install</a></li>
+        <li><a href="#database">2. Create your database</a></li>
+        <li><a href="#entries">3. Add your passwords</a></li>
+        <li><a href="#browser">4. Browser integration</a></li>
+        <li><a href="#import">5. Import existing passwords</a></li>
+        <li><a href="#mobile">6. Mobile access</a></li>
+        <li><a href="#backup">7. Backup strategy</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#checkliste">Final checklist</a></li>
+      </ul>
+    </aside>
+
+    <!-- ARTICLE -->
+    <article>
+      <div class="section-tag">Guide</div>
+      <h1 id="intro">KeePassXC: The Password Manager That Never Talks to a Server</h1>
+
+      <div class="reading-time">
+        ⏱ Reading time: 15 min &nbsp;·&nbsp; ⚙ Setup time: ~30 min
+      </div>
+
+      <!-- MOBILE TOC -->
+      <div class="mobile-toc">
+        <button class="mobile-toc-toggle" id="mobileTocToggle" aria-expanded="false">
+          <span>Table of Contents</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="mobile-toc-content" id="mobileTocContent">
+          <ul class="toc-list">
+            <li><a href="#intro">Why KeePassXC?</a></li>
+            <li><a href="#install">1. Download &amp; install</a></li>
+            <li><a href="#database">2. Create your database</a></li>
+            <li><a href="#entries">3. Add your passwords</a></li>
+            <li><a href="#browser">4. Browser integration</a></li>
+            <li><a href="#import">5. Import existing passwords</a></li>
+            <li><a href="#mobile">6. Mobile access</a></li>
+            <li><a href="#backup">7. Backup strategy</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#checkliste">Final checklist</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <p>Most password managers store your passwords in the cloud — on a server run by a company you're trusting with your most sensitive data. KeePassXC takes a fundamentally different approach: your passwords live in a single encrypted file on <em>your</em> computer. No server, no account, no subscription. Nothing to breach remotely.</p>
+
+      <p>It's free, open-source, available on Windows, Mac, and Linux, and has been independently audited. This guide walks you through everything from the first installation to using it seamlessly on your phone.</p>
+
+      <div class="requirements-box">
+        <h3>What you'll need</h3>
+        <ul>
+          <li>A computer running Windows, Mac, or Linux</li>
+          <li>Around 30 minutes for the full setup</li>
+          <li>Your current passwords (from your browser or another manager)</li>
+          <li>Optional: a smartphone for mobile access</li>
+          <li>Cost: completely free</li>
+        </ul>
+      </div>
+
+      <!-- PHASE 1 -->
+      <h2 id="install">1. Download and Install KeePassXC</h2>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">1</div>
+          <h3>Get the official installer</h3>
+          <span class="step-duration">⏱ 5 min</span>
+        </div>
+        <p>Go to <a href="https://keepassxc.org/download/" target="_blank" rel="noopener">keepassxc.org/download</a> — the official site will automatically detect your operating system.</p>
+        <ul>
+          <li><strong>Windows:</strong> Download the <code>.msi</code> installer and run it. Follow the setup wizard — the defaults are fine.</li>
+          <li><strong>macOS:</strong> Download the <code>.dmg</code> file, open it, and drag KeePassXC to your Applications folder. On first launch, macOS may warn you it was downloaded from the internet — click Open to proceed.</li>
+          <li><strong>Linux:</strong> Use the Flatpak or Snap version from your app store (more sandboxed, therefore more secure), or install via your package manager.</li>
+        </ul>
+        <div class="pro-tip">
+          <strong>Worth verifying:</strong> The download page also provides cryptographic signatures. If you want to be thorough, you can verify the installer file to confirm it came from the KeePassXC team and wasn't tampered with in transit.
+        </div>
+      </div>
+
+      <!-- PHASE 2 -->
+      <h2 id="database">2. Create Your Password Database</h2>
+
+      <p>KeePassXC stores everything in a single encrypted file called a <strong>database</strong> (with the extension <code>.kdbx</code>). Think of it as a safe: the file can be copied, backed up, or moved anywhere — but without the master password, it's completely unreadable.</p>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">1</div>
+          <h3>Create a new database</h3>
+        </div>
+        <ol>
+          <li>Open KeePassXC. On the welcome screen, click <strong>"Create new database"</strong>.</li>
+          <li>Give your database a name (e.g. "My Passwords") and optionally a description. Click <strong>Continue</strong>.</li>
+          <li>You'll see encryption settings. The defaults are strong — but increase the <strong>decryption time to 1–2 seconds</strong>. This makes brute-force attacks significantly harder without being noticeable to you when you unlock the database.</li>
+          <li>Click <strong>Continue</strong>, then choose where to save the <code>.kdbx</code> file. A sensible location is your Documents folder.</li>
+        </ol>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">2</div>
+          <h3>Set your master password</h3>
+        </div>
+        <p>Your master password is the single key that unlocks everything. It should be strong — but also something you can actually remember, because there is no recovery option.</p>
+        <div class="warn-box">
+          <p><strong>There is no password reset.</strong> If you forget your master password and have no backup of it, your database is permanently locked. Write it down and store it somewhere physically safe.</p>
+        </div>
+        <h4>What makes a good master password:</h4>
+        <ul>
+          <li><strong>Use a passphrase</strong>, not a single word — four or five random words strung together (e.g. <code>correct-horse-battery-staple</code>) are both strong and memorable.</li>
+          <li>Aim for at least 20 characters.</li>
+          <li>Don't reuse a password you already use anywhere else.</li>
+        </ul>
+        <p>Click <strong>Done</strong>. KeePassXC will create and open your new database.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">3</div>
+          <h3>Organise with groups</h3>
+        </div>
+        <p>The left sidebar shows <strong>Groups</strong> — essentially folders. KeePassXC comes with a few defaults (Email, Internet, etc.). You can rename, delete, or create new ones.</p>
+        <p>Grouping is optional, but it's worth setting up a structure you'll stick with: for example, Work, Personal, Finance, and Social. You can drag entries between groups at any time.</p>
+      </div>
+
+      <!-- PHASE 3 -->
+      <h2 id="entries">3. Adding and Managing Passwords</h2>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">1</div>
+          <h3>Create your first entry</h3>
+          <span class="step-duration">⏱ 2 min</span>
+        </div>
+        <ol>
+          <li>Click the <strong>+</strong> button in the toolbar, or go to <strong>Entries → Add new entry</strong>.</li>
+          <li>Fill in the <strong>Title</strong> (e.g. "Netflix"), <strong>Username</strong>, and <strong>Password</strong>.</li>
+          <li>Add the <strong>URL</strong> of the login page — this is what allows the browser extension to match the entry to the right website automatically.</li>
+          <li>Click <strong>OK</strong>, then save the database with <strong>Ctrl+S</strong> (or Cmd+S on Mac).</li>
+        </ol>
+        <div class="pro-tip">
+          <strong>Always save after changes.</strong> KeePassXC doesn't auto-save. Get into the habit of pressing Ctrl+S after adding or editing entries.
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">2</div>
+          <h3>Generate strong passwords</h3>
+        </div>
+        <p>When creating a new entry, click the dice icon next to the password field to open the <strong>password generator</strong>. KeePassXC will generate a cryptographically random password for you.</p>
+        <p>Recommended settings: at least 20 characters, uppercase, lowercase, numbers, and symbols all enabled. Since KeePassXC remembers the password for you, the length and complexity don't need to be memorable.</p>
+      </div>
+
+      <!-- PHASE 4 -->
+      <h2 id="browser">4. Browser Integration — Auto-Fill in Action</h2>
+
+      <p>KeePassXC can fill in your username and password automatically when you visit a website — similar to how a cloud password manager works, but entirely locally.</p>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">1</div>
+          <h3>Install the browser extension</h3>
+          <span class="step-duration">⏱ 5 min</span>
+        </div>
+        <p>Install the <strong>KeePassXC-Browser</strong> extension for your browser:</p>
+        <ul>
+          <li><a href="https://chrome.google.com/webstore/detail/keepassxc-browser/oboonakemofpalcgghocfoadofidjkkk" target="_blank" rel="noopener">Chrome / Edge / Brave</a></li>
+          <li><a href="https://addons.mozilla.org/en-US/firefox/addon/keepassxc-browser/" target="_blank" rel="noopener">Firefox</a></li>
+        </ul>
+        <p>After installing, pin the extension to your toolbar so it's easily accessible.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">2</div>
+          <h3>Connect the extension to KeePassXC</h3>
+        </div>
+        <ol>
+          <li>Make sure KeePassXC is open and your database is unlocked.</li>
+          <li>In KeePassXC, go to <strong>Tools → Settings → Browser Integration</strong>.</li>
+          <li>Check <strong>"Enable browser integration"</strong> and tick the checkbox for your browser.</li>
+          <li>Click the KeePassXC-Browser icon in your browser toolbar. A connection dialog will appear — click <strong>Connect</strong>.</li>
+          <li>KeePassXC will ask you to name the connection (e.g. "My Browser"). Click <strong>Save</strong>.</li>
+        </ol>
+        <div class="highlight-box">
+          <p>From now on: visit any login page, click the KeePassXC icon in the login field (or press <strong>Ctrl+Shift+U</strong>), and the extension will fill in your credentials automatically — but only if KeePassXC is open and your database is unlocked.</p>
+        </div>
+      </div>
+
+      <!-- PHASE 5 -->
+      <h2 id="import">5. Importing Your Existing Passwords</h2>
+
+      <p>You don't need to enter all your passwords manually. KeePassXC can import directly from your browser or from another password manager.</p>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">1</div>
+          <h3>Import from Chrome, Edge, or Brave</h3>
+        </div>
+        <ol>
+          <li>In Chrome: go to <strong>Settings → Autofill → Password Manager → Saved Passwords</strong>, click the three dots, and select <strong>Export passwords</strong>. Save the file.</li>
+          <li>In KeePassXC: go to <strong>Database → Import → Import from CSV</strong>.</li>
+          <li>Select the exported file and follow the import wizard to map the columns.</li>
+        </ol>
+        <div class="warn-box">
+          <p><strong>Delete the CSV file immediately after importing.</strong> The exported file contains all your passwords in plain text. Once the import is complete, delete the file and empty your trash.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">2</div>
+          <h3>Import from Firefox</h3>
+        </div>
+        <ol>
+          <li>In Firefox: go to <strong>Settings → Privacy &amp; Security → Logins and Passwords → Saved Logins</strong>.</li>
+          <li>Click the three-dot menu (top right of the logins panel) and choose <strong>Export Logins</strong>. Save the <code>.csv</code> file.</li>
+          <li>Import into KeePassXC the same way as above: <strong>Database → Import → Import from CSV</strong>.</li>
+        </ol>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">3</div>
+          <h3>Import from Bitwarden or another manager</h3>
+        </div>
+        <p>Most password managers can export to CSV or JSON. In KeePassXC, you can import any CSV file by manually mapping the columns in the import wizard. Bitwarden specifically exports to a format that KeePassXC handles well.</p>
+        <p>For Bitwarden: log in at <strong>vault.bitwarden.com → Tools → Export Vault</strong>. Choose CSV, export, then import into KeePassXC as above.</p>
+      </div>
+
+      <!-- PHASE 6 -->
+      <h2 id="mobile">6. Accessing Your Passwords on Your Phone</h2>
+
+      <p>KeePassXC itself is a desktop-only application. For mobile, there are separate apps that use the same <code>.kdbx</code> database format — so the same file works everywhere.</p>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">1</div>
+          <h3>Choose your mobile app</h3>
+        </div>
+        <ul>
+          <li><strong>Android:</strong> <a href="https://www.keepassdx.com" target="_blank" rel="noopener">KeePassDX</a> — free, open-source, well-maintained. Available on F-Droid and the Play Store.</li>
+          <li><strong>iPhone / iPad:</strong> <a href="https://strongboxsafe.com" target="_blank" rel="noopener">Strongbox</a> (free version available) or <strong>KeePassium</strong>. Both are polished, reputable, and support biometric unlock.</li>
+        </ul>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">2</div>
+          <h3>Sync your database to your phone</h3>
+        </div>
+        <p>Your <code>.kdbx</code> file is just a regular encrypted file — you can sync it any way you like. The file stays encrypted at all times, so even if someone intercepts it, it's unreadable without your master password.</p>
+        <h4>Options for syncing:</h4>
+        <ul>
+          <li><strong>Nextcloud</strong> (recommended if you followed our Nextcloud guide): place the <code>.kdbx</code> file in your Nextcloud folder. It syncs automatically to all your devices.</li>
+          <li><strong>iCloud Drive / Google Drive / Dropbox:</strong> also works. The file remains encrypted regardless of where it's stored.</li>
+          <li><strong>Manual transfer:</strong> copy the file via USB cable or AirDrop if you prefer not to use any cloud service.</li>
+        </ul>
+        <p>Open your mobile app, point it to the synced file, and enter your master password. Enable biometric unlock (Face ID / fingerprint) so you only need to type the master password once after a restart.</p>
+      </div>
+
+      <!-- PHASE 7 -->
+      <h2 id="backup">7. Backup Strategy — The Most Important Step</h2>
+
+      <p>Unlike cloud password managers, KeePassXC doesn't back itself up automatically. Your database is a single file. If your computer's hard drive fails and you have no backup, all your passwords are gone.</p>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">1</div>
+          <h3>The 3-2-1 rule for your database</h3>
+        </div>
+        <p>A simple backup strategy: keep <strong>3 copies</strong> of your database, on <strong>2 different types of storage</strong>, with <strong>1 copy off-site</strong>.</p>
+        <ul>
+          <li><strong>Copy 1:</strong> Your main computer (working copy)</li>
+          <li><strong>Copy 2:</strong> A USB stick or external drive at home</li>
+          <li><strong>Copy 3:</strong> A cloud service (Nextcloud, iCloud, or similar) — the file is fully encrypted, so this is safe</li>
+        </ul>
+        <div class="highlight-box">
+          <p>Because the <code>.kdbx</code> file is always encrypted with AES-256, storing it in the cloud does not expose your passwords. The encryption happens locally on your device — the cloud only ever sees the locked file.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number">2</div>
+          <h3>Enable automatic database backups in KeePassXC</h3>
+        </div>
+        <ol>
+          <li>Go to <strong>Tools → Settings → General</strong>.</li>
+          <li>Enable <strong>"Create a backup file before saving"</strong>.</li>
+          <li>KeePassXC will automatically save a <code>.kdbx.bak</code> backup each time you save, in the same folder as your database.</li>
+        </ol>
+        <p>This protects you against accidental data loss from a corrupted save — not against hardware failure, which is why the off-site copy matters too.</p>
+      </div>
+
+      <!-- FAQ -->
+      <h2 id="faq">Frequently Asked Questions</h2>
+
+      <div class="faq-item">
+        <h3>What happens if I forget my master password?</h3>
+        <p>There is no recovery option. KeePassXC has no servers and no account — no one can reset it for you. Write your master password down and store it physically somewhere secure (not just on your computer).</p>
+      </div>
+      <div class="faq-item">
+        <h3>Is it safe to store the database in the cloud?</h3>
+        <p>Yes. The <code>.kdbx</code> file is encrypted with AES-256 before it ever leaves your device. Even if your cloud account were compromised, an attacker would only have an encrypted file they cannot open without your master password.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Can I use KeePassXC without the browser extension?</h3>
+        <p>Yes. You can copy usernames and passwords from the KeePassXC window manually, or use the auto-type feature (Ctrl+V) which types credentials into any application — not just browsers.</p>
+      </div>
+      <div class="faq-item">
+        <h3>What if I use multiple computers?</h3>
+        <p>Store your database in a synced folder (Nextcloud, iCloud, etc.) and open the same file on each machine. KeePassXC will always work with the latest version of the file. Avoid editing the database on two devices simultaneously without syncing — this can create conflicts.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Is KeePassXC really free?</h3>
+        <p>Yes, completely. KeePassXC is open-source software maintained by volunteers. There are no paid tiers, no subscription, and no premium features — everything is available to everyone for free.</p>
+      </div>
+
+      <!-- CHECKLIST -->
+      <h2 id="checkliste">Final Checklist</h2>
+      <div class="highlight-box">
+        <ul class="checklist">
+          <li>✓ &nbsp;KeePassXC installed on your computer</li>
+          <li>✓ &nbsp;Database created with a strong master password</li>
+          <li>✓ &nbsp;Master password written down and stored somewhere safe</li>
+          <li>✓ &nbsp;Automatic backups enabled in KeePassXC settings</li>
+          <li>✓ &nbsp;Existing passwords imported from browser or old manager</li>
+          <li>✓ &nbsp;Browser extension installed and connected</li>
+          <li>✓ &nbsp;Mobile app set up and pointing to the same database file</li>
+          <li>✓ &nbsp;Database backed up to at least one off-site location</li>
+          <li>✓ &nbsp;CSV export file deleted after import</li>
+        </ul>
+      </div>
+
+      
+
+    </article>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">
+    <svg width="18" height="18" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:inline-block;vertical-align:middle;margin-right:0.35rem;opacity:0.55;">
+      <path d="M19 4L7 9.5V18C7 25 12.5 31.2 19 33C25.5 31.2 31 25 31 18V9.5L19 4Z" fill="#EAF3EF" stroke="#6B6860" stroke-width="2" stroke-linejoin="round"/>
+      <polyline points="13,19 17.5,24 26,14" stroke="#6B6860" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>© 2026 pc-privacytools.org</span>
+  
+</footer>
+
+<a href="#" class="back-to-top" id="backToTop">↑ top</a>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="f934f276-a733-4fda-8d2a-f07c5d51049b"></script>
+<script>
+  const backToTop = document.getElementById('backToTop');
+  window.addEventListener('scroll', () => {
+    backToTop.classList.toggle('visible', window.scrollY > 400);
+  });
+  backToTop.addEventListener('click', e => {
+    e.preventDefault();
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+
+  const mobileTocToggle = document.getElementById('mobileTocToggle');
+  const mobileTocContent = document.getElementById('mobileTocContent');
+  if (mobileTocToggle) {
+    mobileTocToggle.addEventListener('click', () => {
+      const isOpen = mobileTocContent.classList.toggle('active');
+      mobileTocToggle.classList.toggle('open', isOpen);
+      mobileTocToggle.setAttribute('aria-expanded', isOpen);
+    });
+  }
+
+  const sections = document.querySelectorAll('[id]');
+  const tocLinks = document.querySelectorAll('.toc-list a');
+
+  function highlightTOC() {
+    let current = '';
+    sections.forEach(section => {
+      if (window.scrollY >= section.offsetTop - 120) current = section.getAttribute('id');
+    });
+    tocLinks.forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+    });
+  }
+  window.addEventListener('scroll', highlightTOC);
+
+  document.querySelectorAll('.toc-list a').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (!target) return;
+      window.scrollTo({ top: target.offsetTop - 90, behavior:'smooth' });
+      if (window.innerWidth <= 900) {
+        mobileTocContent.classList.remove('active');
+        mobileTocToggle.classList.remove('open');
+        mobileTocToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
